@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +14,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -45,8 +52,11 @@ import com.example.railwayqrapp.Screens
 import com.example.railwayqrapp.SystemColors
 import com.example.railwayqrapp.authentication.AuthViewModel
 import com.example.railwayqrapp.data.PassengerInfo
+import com.example.railwayqrapp.data.TrainInfo
 import com.example.railwayqrapp.data.User
 import com.example.railwayqrapp.navigate
+import com.example.railwayqrapp.navigateClearFullBackStack
+import com.example.railwayqrapp.ui.theme.buttonBackgroundColor
 import com.example.railwayqrapp.ui.theme.darkGray
 import com.example.railwayqrapp.ui.theme.darkGreen
 import com.example.railwayqrapp.ui.theme.fadedWhite
@@ -62,12 +72,44 @@ fun HomeScreen(
 ) {
     val user = authViewModel.getCurrentUser()
     authViewModel.getUserFromFirebase()
+    user?.let {
+        homeViewModel.getTrainInfoForUser(it.uid)
+    }
     SystemColors(
         navigationBarColor = fadedWhite,
         systemBarsColor = fadedWhite,
         statusBarColor = lightRed
     )
     val userDataState = authViewModel.userData.collectAsState()
+    val detailsAlertState = remember {
+        mutableStateOf(false)
+    }
+    val logOutDialogState = remember {
+        mutableStateOf(false)
+    }
+    val trainInfoState = homeViewModel.trainInfoState.collectAsState()
+    trainInfoState.value?.let { trainInfo ->
+        if (detailsAlertState.value) {
+            TrainDetailsAlertBox(trainInfo = trainInfo) {
+                detailsAlertState.value = false
+            }
+        }
+    }
+    if (logOutDialogState.value) {
+        LogOutAlertBox(
+            onCancelClicked = {
+                logOutDialogState.value = false
+            },
+            onLogOutClicked = {
+                // Log Out the user
+                authViewModel.logOut()
+                navigateClearFullBackStack(
+                    navController,
+                    destination = Screens.SignInScreen.route
+                )
+            }
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,8 +134,10 @@ fun HomeScreen(
         TopBar(
             firstName = currUser.value.firstName,
             onDetailsClicked = {
-                // Navigate to train details screen...
-                Log.d("BackStackQueue", "Queue: ${navController.backQueue.map { it.destination }}")
+                detailsAlertState.value = true
+            },
+            onLogOutClicked = {
+                logOutDialogState.value = true
             }
         )
 
@@ -109,12 +153,148 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun TrainDetailsAlertBox(
+    modifier: Modifier = Modifier,
+    trainInfo: TrainInfo,
+    onCloseClicked: () -> Unit
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = { },
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "Train Details",
+                    fontSize = 24.sp,
+                    color = darkGray,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Train Number : ${trainInfo.trainNo}",
+                    fontSize = 16.sp,
+                    color = darkGray,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Train Name : ${trainInfo.trainName}",
+                    fontSize = 16.sp,
+                    color = darkGray,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Departure : ${trainInfo.depTime}",
+                    fontSize = 16.sp,
+                    color = darkGray,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Arrival : ${trainInfo.arrTime}",
+                    fontSize = 16.sp,
+                    color = darkGray,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        buttons = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    modifier = Modifier.padding(12.dp),
+                    onClick = { onCloseClicked() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = lightRed),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text(
+                        text = "Close",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = darkGray,
+                    )
+                }
+            }
+        },
+        backgroundColor = listItemBackground
+    )
+}
+
+@Composable
+fun LogOutAlertBox(
+    modifier: Modifier = Modifier,
+    onCancelClicked: () -> Unit,
+    onLogOutClicked: () -> Unit
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = { },
+        title = {
+            Text(
+                modifier = Modifier,
+                text = "Are you sure you want to log out?",
+                fontSize = 24.sp,
+                color = darkGray,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        buttons = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = { onCancelClicked() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = buttonBackgroundColor),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text(
+                        text = "Cancel",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = darkGray,
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { onLogOutClicked() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = lightRed),
+                    shape = RoundedCornerShape(20)
+                ) {
+                    Text(
+                        text = "Log Out",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = darkGray
+                    )
+                }
+            }
+        },
+        backgroundColor = listItemBackground
+    )
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
     firstName: String,
     onDetailsClicked: () -> Unit,
+    onLogOutClicked: () -> Unit
 ) {
     Surface(
         onClick = { },
@@ -126,9 +306,12 @@ fun TopBar(
                 .fillMaxWidth()
                 .background(lightRed)
                 .padding(8.dp)
-                .padding(start = 4.dp)
+                .padding(start = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier.weight(.8f)
+            ) {
                 Text(
                     "Hello, $firstName",
                     fontSize = 25.sp,
@@ -142,6 +325,16 @@ fun TopBar(
                     textColor = fadedWhite
                 )
             }
+            Icon(
+                modifier = Modifier
+                    .weight(.2f)
+                    .size(40.dp)
+                    .clickable {
+                        onLogOutClicked()
+                    },
+                imageVector = Icons.Default.ExitToApp,
+                contentDescription = "Exit"
+            )
         }
     }
 }

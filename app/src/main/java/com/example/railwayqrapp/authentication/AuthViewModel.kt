@@ -6,6 +6,7 @@ import com.example.railwayqrapp.data.PassengerInfo
 import com.example.railwayqrapp.data.TrainInfo
 import com.example.railwayqrapp.data.User
 import com.example.railwayqrapp.indiaCityList
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -47,6 +48,8 @@ class AuthViewModel : ViewModel() {
     fun isUserSignedIn(): Boolean = auth.currentUser != null
 
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
+
+    fun logOut() = run { FirebaseAuth.getInstance().signOut() }
 
     fun saveUserToDB(
         user: User

@@ -4,11 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.railwayqrapp.authentication.ProgressState
 import com.example.railwayqrapp.data.PassengerInfo
+import com.example.railwayqrapp.data.TrainInfo
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,11 +33,25 @@ class HomeViewModel : ViewModel() {
         MutableStateFlow(null)
     val passengerVerificationState: StateFlow<ProgressState?> get() = _passengerVerificationState
 
+    private val _trainInfoState: MutableStateFlow<TrainInfo?> = MutableStateFlow(null)
+    val trainInfoState: StateFlow<TrainInfo?> get() = _trainInfoState
+
     private val _passengerUpdateState: MutableStateFlow<PassengerInfo?> = MutableStateFlow(null)
 
     fun resetProgressState() = run { _passengerVerificationState.value = null }
 
     private lateinit var trainRefListener: ListenerRegistration
+
+    fun getTrainInfoForUser(userId: String) {
+        try {
+            db.collection("train_info").document(userId).get()
+                .addOnSuccessListener { trainInfo ->
+                    _trainInfoState.value = trainInfo.toObject<TrainInfo>()
+                }
+        } catch (e: Exception) {
+            Log.d("TrainInfoFetching", "exception -> ${e.message.toString()} ")
+        }
+    }
 
     fun addPassengerDataListener() {
         Log.d("HomeViewModelPassengerData", "HERE START!")
