@@ -87,6 +87,10 @@ fun SeatsScreen(
                     )
                 }else{
                     // navigate to details screen
+                    navigate(
+                        navController = navController,
+                        destination = Screens.DetailsScreen.route + "/${currPassenger.coach}/${currPassenger.seatNumber}"
+                    )
                 }
             }
         }

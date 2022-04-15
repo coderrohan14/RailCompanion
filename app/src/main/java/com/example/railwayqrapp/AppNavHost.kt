@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.railwayqrapp.authentication.AuthViewModel
 import com.example.railwayqrapp.authentication.SignInScreen
 import com.example.railwayqrapp.authentication.SignUpScreen
+import com.example.railwayqrapp.screens.DetailsScreen
 import com.example.railwayqrapp.screens.HomeScreen
 import com.example.railwayqrapp.screens.SeatsScreen
 import com.example.railwayqrapp.viewModels.HomeViewModel
@@ -60,7 +61,21 @@ fun AppNavHost(
                 }
             )
         ){ backstack->
-            QRScannerScreen(navController, backstack,homeViewModel)
+            QRScannerScreen(navController, backstack, homeViewModel)
+        }
+
+        composable(
+            Screens.DetailsScreen.route + "/{coachNumber}/{seatNumber}",
+            arguments = listOf(
+                navArgument("coachNumber"){
+                    type = NavType.StringType
+                },
+                navArgument("seatNumber"){
+                    type = NavType.StringType
+                }
+            )
+        ){ backstack->
+            DetailsScreen(navController, backstack, homeViewModel)
         }
     }
 }
