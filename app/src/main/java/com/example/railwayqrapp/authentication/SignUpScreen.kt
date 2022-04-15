@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.example.railwayqrapp.Screens
 import com.example.railwayqrapp.SystemColors
 import com.example.railwayqrapp.data.User
+import com.example.railwayqrapp.navigateClearFullBackStack
 import com.example.railwayqrapp.ui.theme.buttonBackgroundColor
 import com.example.railwayqrapp.ui.theme.fadedWhite
 
@@ -107,12 +108,10 @@ fun SignUpScreen(
             when (state) {
                 ProgressState.Success -> {
                     progressBarState = false
-                    navController.navigate(Screens.HomeScreen.route) {
-                        popUpTo(Screens.SignUpScreen.route) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
+                    navigateClearFullBackStack(
+                        navController = navController,
+                        destination = Screens.HomeScreen.toString()
+                    )
                 }
 
                 ProgressState.Loading -> {
@@ -244,12 +243,10 @@ fun SignUpScreen(
                     .align(Alignment.BottomCenter)
                     .clickable {
                         // Handle sign in
-                        navController.navigate(Screens.SignInScreen.route) {
-                            popUpTo(Screens.SignUpScreen.route) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
+                        navigateClearFullBackStack(
+                            navController = navController,
+                            destination = Screens.SignInScreen.toString()
+                        )
                     }
                     .alpha(.6f),
                 text = "Already a member? Sign in here...",

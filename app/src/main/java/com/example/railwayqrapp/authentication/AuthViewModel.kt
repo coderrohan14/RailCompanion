@@ -8,6 +8,7 @@ import com.example.railwayqrapp.data.User
 import com.example.railwayqrapp.indiaCityList
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -20,6 +21,13 @@ class AuthViewModel : ViewModel() {
 
     private val auth by lazy { Firebase.auth }
     private val db by lazy { Firebase.firestore }
+
+    init{
+        val settings = FirebaseFirestoreSettings.Builder()
+            .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+            .build()
+        db.firestoreSettings = settings
+    }
 
     private val _resetPasswordState: MutableStateFlow<ProgressState?> = MutableStateFlow(null)
     val resetPasswordState: StateFlow<ProgressState?> get() = _resetPasswordState
@@ -156,9 +164,8 @@ class AuthViewModel : ViewModel() {
         var cnt=1
         for(coach in 'A'..'J'){
             for(seatNo in 1..10){
-                val passengerInfo = getRandomPassengerInfo(cnt++)
-                val seatRef = db.collection("passengersInfo").document(coach.toString())
-                    .collection(seatNo.toString()).document(seatNo.toString())
+                val passengerInfo = getRandomPassengerInfo(cnt++,coach.toString(),seatNo.toString())
+                val seatRef = db.collection("passengersInfo").document(passengerInfo.passengerId)
                 try{
                     seatRef.set(passengerInfo).addOnCompleteListener { task->
                         if(!task.isSuccessful){
@@ -172,7 +179,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private fun getRandomPassengerInfo(num: Int): PassengerInfo{
+    private fun getRandomPassengerInfo(num: Int,coach: String, seat: String): PassengerInfo{
         val firstName = "First_Name_$num"
         val lastName = "Last_Name_$num"
         val PNR = (1e9.toLong()..1e17.toLong()).random().toString()
@@ -188,7 +195,10 @@ class AuthViewModel : ViewModel() {
             PNR = PNR,
             age = age,
             from = from,
-            to = to
+            to = to,
+            verified = false,
+            coach = coach,
+            seatNumber = seat
         )
     }
 

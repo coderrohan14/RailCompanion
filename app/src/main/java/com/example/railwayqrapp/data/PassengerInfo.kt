@@ -7,5 +7,8 @@ data class PassengerInfo(
     val PNR: String = "",
     val age: String = "",
     val from: String = "",
-    val to: String = ""
+    val to: String = "",
+    val verified: Boolean = false,
+    val coach: String = "",
+    val seatNumber: String = ""
 )

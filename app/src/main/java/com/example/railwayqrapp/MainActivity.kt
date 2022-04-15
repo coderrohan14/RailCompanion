@@ -3,14 +3,12 @@ package com.example.railwayqrapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.railwayqrapp.authentication.AuthViewModel
-import com.example.railwayqrapp.authentication.SignInScreen
-import com.example.railwayqrapp.authentication.SignUpScreen
 import com.example.railwayqrapp.ui.theme.RailwayQRAppTheme
+import com.example.railwayqrapp.viewModels.HomeViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,27 +16,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             RailwayQRAppTheme {
                 // A surface container using the 'background' color from the theme
-                val viewModel = viewModel<AuthViewModel>()
-                val navController = rememberNavController()
-                val startDestination = if (viewModel.isUserSignedIn()) Screens.HomeScreen.route
-                else Screens.SignInScreen.route
-                NavHost(
-                    navController = navController,
-                    startDestination = startDestination
-                ) {
-
-                    composable(Screens.SignInScreen.route) {
-                        SignInScreen(navController, viewModel)
-                    }
-
-                    composable(Screens.SignUpScreen.route) {
-                        SignUpScreen(navController, viewModel)
-                    }
-
-                    composable(Screens.HomeScreen.route) {
-                        HomeScreen(navController,viewModel)
-                    }
+                val authViewModel = viewModel<AuthViewModel>()
+                val homeViewModel = viewModel<HomeViewModel>()
+                LaunchedEffect(key1 = true){
+                    homeViewModel.initializeDBSettings()
+                    homeViewModel.addPassengerDataListener()
                 }
+                val navController = rememberNavController()
+                val startDestination = if (authViewModel.isUserSignedIn()) Screens.HomeScreen.route
+                else Screens.SignInScreen.route
+                AppNavHost(
+                    navController = navController,
+                    startDestination = startDestination,
+                    authViewModel = authViewModel,
+                    homeViewModel = homeViewModel
+                )
             }
         }
     }
