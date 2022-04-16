@@ -143,7 +143,7 @@ fun HomeScreen(
 
         ListSection(
             modifier = Modifier.fillMaxSize(),
-            passengersData = passengerInfo.value
+            passengersData = passengerInfo.value.data
         ) { coach ->
             navigate(
                 navController = navController,

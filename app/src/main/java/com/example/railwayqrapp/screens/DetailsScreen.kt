@@ -43,7 +43,7 @@ fun DetailsScreen(
     val passengersDetails = homeViewModel.passengersState.collectAsState()
     val coachNumber = backstack.arguments?.getString("coachNumber")
     val seatNumber = backstack.arguments?.getString("seatNumber")
-    val currPassenger = passengersDetails.value[coachNumber]?.get(seatNumber)
+    val currPassenger = passengersDetails.value.data[coachNumber]?.get(seatNumber)
     if (coachNumber == null || seatNumber == null || currPassenger == null) {
         Box(
             modifier = Modifier

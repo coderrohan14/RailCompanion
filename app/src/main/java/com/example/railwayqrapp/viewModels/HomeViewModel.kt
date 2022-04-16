@@ -3,6 +3,7 @@ package com.example.railwayqrapp.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.railwayqrapp.authentication.ProgressState
+import com.example.railwayqrapp.data.FirestoreDataStructure
 import com.example.railwayqrapp.data.PassengerInfo
 import com.example.railwayqrapp.data.TrainInfo
 import com.google.firebase.firestore.DocumentChange
@@ -25,9 +26,9 @@ class HomeViewModel : ViewModel() {
 
     fun initializeDBSettings() = run { db.firestoreSettings = settings }
 
-    private val _passengersState: MutableStateFlow<HashMap<String, HashMap<String, PassengerInfo>>> =
-        MutableStateFlow(HashMap())
-    val passengersState: StateFlow<HashMap<String, HashMap<String, PassengerInfo>>> get() = _passengersState
+    private val _passengersState: MutableStateFlow<FirestoreDataStructure> =
+        MutableStateFlow(FirestoreDataStructure())
+    val passengersState: StateFlow<FirestoreDataStructure> get() = _passengersState
 
     private val _passengerVerificationState: MutableStateFlow<ProgressState?> =
         MutableStateFlow(null)
@@ -69,6 +70,7 @@ class HomeViewModel : ViewModel() {
                             "HomeViewModelPassengerData",
                             "Passenger -> ${passenger.coach}, ${passenger.seatNumber}"
                         )
+                        val hm = _passengersState.value.copy()
                         if ((dc.type == DocumentChange.Type.ADDED) || (dc.type == DocumentChange.Type.MODIFIED)) {
                             if (snapshot.metadata.isFromCache) {
                                 // local data change
@@ -79,22 +81,26 @@ class HomeViewModel : ViewModel() {
                                     }
                                 }
                             }
-                            if (_passengersState.value.containsKey(passenger.coach)) {
-                                if (_passengersState.value[passenger.coach]!!.containsKey(passenger.seatNumber)) {
-                                    _passengersState.value[passenger.coach]!![passenger.seatNumber] =
+                            if (_passengersState.value.data.containsKey(passenger.coach)) {
+                                if (_passengersState.value.data[passenger.coach]!!.containsKey(
+                                        passenger.seatNumber
+                                    )
+                                ) {
+                                    hm.data[passenger.coach]!![passenger.seatNumber] =
                                         passenger
                                 } else {
-                                    _passengersState.value[passenger.coach]!![passenger.seatNumber] =
+                                    hm.data[passenger.coach]!![passenger.seatNumber] =
                                         passenger
                                 }
                             } else {
-                                val hm = hashMapOf<String, PassengerInfo>()
-                                hm[passenger.seatNumber] = passenger
-                                _passengersState.value[passenger.coach] = hm
+                                val hm1 = hashMapOf<String, PassengerInfo>()
+                                hm1[passenger.seatNumber] = passenger
+                                hm.data[passenger.coach] = hm1
                             }
                         } else {
-                            _passengersState.value[passenger.coach]?.remove(passenger.seatNumber)
+                            hm.data[passenger.coach]?.remove(passenger.seatNumber)
                         }
+                        _passengersState.value = hm
                     }
                 } else {
                     Log.d("PassengerSnapshotError", "Snapshot is null")

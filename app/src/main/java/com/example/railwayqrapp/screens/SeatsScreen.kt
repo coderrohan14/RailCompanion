@@ -76,16 +76,19 @@ fun SeatsScreen(
             SeatListSection(
                 modifier = Modifier.fillMaxSize(),
                 coach = coachNumber,
-                passengersData = passengerInfo.value
+                passengersData = passengerInfo.value.data
             ) { currPassenger ->
                 // direct to qr scanner or details screen
-                if(!currPassenger.verified){
-                    Log.d("PassengerInfoTag", "FName -> ${currPassenger.firstName}, verified -> ${currPassenger.verified}}")
+                if (!currPassenger.verified) {
+                    Log.d(
+                        "PassengerInfoTag",
+                        "FName -> ${currPassenger.firstName}, verified -> ${currPassenger.verified}}"
+                    )
                     navigate(
                         navController = navController,
                         destination = Screens.QRCodeScannerScreen.route + "/${currPassenger.coach}/${currPassenger.seatNumber}"
                     )
-                }else{
+                } else {
                     // navigate to details screen
                     navigate(
                         navController = navController,

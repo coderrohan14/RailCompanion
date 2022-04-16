@@ -2,7 +2,6 @@ package com.example.railwayqrapp
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
@@ -52,7 +51,6 @@ import com.example.railwayqrapp.ui.theme.verifiedBackground
 import com.example.railwayqrapp.viewModels.HomeViewModel
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.CompoundBarcodeView
-import org.w3c.dom.Text
 
 @Composable
 fun QRScannerScreen(
@@ -65,7 +63,7 @@ fun QRScannerScreen(
     val progressBarState = remember { mutableStateOf(false) }
     val coachNumber = backstack.arguments?.getString("coachNumber")
     val seatNumber = backstack.arguments?.getString("seatNumber")
-    val currPassenger = passengersState.value[coachNumber]?.get(seatNumber)
+    val currPassenger = passengersState.value.data[coachNumber]?.get(seatNumber)
 
     if (coachNumber == null || seatNumber == null || currPassenger == null) {
         Box(
