@@ -1,6 +1,7 @@
 package com.example.railwayqrapp.authentication
 
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,7 +44,6 @@ import androidx.navigation.NavController
 import com.example.railwayqrapp.CustomButtonRect
 import com.example.railwayqrapp.Screens
 import com.example.railwayqrapp.SystemColors
-import com.example.railwayqrapp.navigateClearFullBackStack
 import com.example.railwayqrapp.ui.theme.buttonBackgroundColor
 import com.example.railwayqrapp.ui.theme.fadedWhite
 import com.example.railwayqrapp.ui.theme.homeBackground
@@ -55,6 +55,7 @@ fun SignInScreen(
     viewModel: AuthViewModel
 ) {
     val context = LocalContext.current
+    Log.d("BackStackSignIn", "backstack -> ${navController.backQueue.map { it.destination.toString() }}")
     SystemColors(
         navigationBarColor = Color.Red,
         systemBarsColor = Color.Red,
@@ -104,10 +105,12 @@ fun SignInScreen(
         when (state) {
             ProgressState.Success -> {
                 progressBarState = false
-                navigateClearFullBackStack(
-                    navController = navController,
-                    destination = Screens.HomeScreen.toString()
-                )
+                navController.navigate(Screens.HomeScreen.route){
+                    popUpTo(Screens.SignInScreen.route){
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
             }
 
             ProgressState.Loading -> {
@@ -235,10 +238,8 @@ fun SignInScreen(
                         .align(Alignment.BottomCenter)
                         .clickable {
                             // Handle sign up
-                            navigateClearFullBackStack(
-                                navController = navController,
-                                destination = Screens.SignUpScreen.toString()
-                            )
+                            navController.navigate(Screens.SignUpScreen.route)
+                            Log.d("BackStackSignIn", "backstack -> ${navController.backQueue.map { it.destination.toString() }}")
                         }
                         .alpha(.6f),
                     text = "New here? Sign up instead...",

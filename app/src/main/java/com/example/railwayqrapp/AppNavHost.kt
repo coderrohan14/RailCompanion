@@ -27,15 +27,15 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
 
-        composable(Screens.SignInScreen.route) {
+        composable(route = Screens.SignInScreen.route) {
             SignInScreen(navController, authViewModel)
         }
 
-        composable(Screens.SignUpScreen.route) {
+        composable(route = Screens.SignUpScreen.route) {
             SignUpScreen(navController, authViewModel)
         }
 
-        composable(Screens.HomeScreen.route) {
+        composable(route = Screens.HomeScreen.route) {
             HomeScreen(navController, authViewModel, homeViewModel)
         }
 

@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.example.railwayqrapp.authentication.ProgressState
 import com.example.railwayqrapp.data.PassengerInfo
+import com.example.railwayqrapp.screens.DetailsTopBar
 import com.example.railwayqrapp.ui.theme.darkGray
 import com.example.railwayqrapp.ui.theme.darkGreen
 import com.example.railwayqrapp.ui.theme.fadedWhite
@@ -58,6 +60,11 @@ fun QRScannerScreen(
     backstack: NavBackStackEntry,
     homeViewModel: HomeViewModel
 ) {
+    SystemColors(
+        navigationBarColor = Color.Transparent,
+        systemBarsColor = Color.Transparent,
+        statusBarColor = lightRed
+    )
     val passengersState = homeViewModel.passengersState.collectAsState()
     val passengerVerificationState = homeViewModel.passengerVerificationState.collectAsState()
     val progressBarState = remember { mutableStateOf(false) }
@@ -231,8 +238,12 @@ fun QRScannerScreen(
                     }
                 }
 
+                DetailsTopBar(text = "Scan the QR code") {
+                    navController.popBackStack()
+                }
+
                 AndroidView(
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxSize(),
                     factory = { compoundBarcodeView },
                 )
             }
@@ -326,7 +337,10 @@ fun MatchedDialogBox(
                     fontWeight = FontWeight.SemiBold
                 )
                 if (progressState) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(
                             color = lightRed
                         )

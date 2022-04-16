@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.example.railwayqrapp.R
+import com.example.railwayqrapp.SystemColors
 import com.example.railwayqrapp.data.PassengerInfo
 import com.example.railwayqrapp.ui.theme.darkGray
 import com.example.railwayqrapp.ui.theme.fadedWhite
@@ -40,6 +41,11 @@ fun DetailsScreen(
     backstack: NavBackStackEntry,
     homeViewModel: HomeViewModel
 ) {
+    SystemColors(
+        navigationBarColor = fadedWhite,
+        systemBarsColor = fadedWhite,
+        statusBarColor = lightRed
+    )
     val passengersDetails = homeViewModel.passengersState.collectAsState()
     val coachNumber = backstack.arguments?.getString("coachNumber")
     val seatNumber = backstack.arguments?.getString("seatNumber")
