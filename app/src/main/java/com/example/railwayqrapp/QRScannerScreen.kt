@@ -246,6 +246,24 @@ fun QRScannerScreen(
                     modifier = Modifier.fillMaxSize(),
                     factory = { compoundBarcodeView },
                 )
+            }else{
+                Column(modifier = Modifier.fillMaxSize()) {
+                    DetailsTopBar(text = "Scan the QR code") {
+                        navController.popBackStack()
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            modifier = Modifier.padding(12.dp),
+                            text = "Camera access is needed to scan the QR code!\n\nPlease go to settings and grant the Camera permission to continue.",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = darkGray
+                        )
+                    }
+                }
             }
         }
     }
