@@ -49,7 +49,11 @@ class AuthViewModel : ViewModel() {
 
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
-    fun logOut() = run { FirebaseAuth.getInstance().signOut() }
+    fun logOut() = run {
+        FirebaseAuth.getInstance().signOut()
+        _signInState.value = null
+        _signUpState.value = null
+    }
 
     fun saveUserToDB(
         user: User

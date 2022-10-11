@@ -1,5 +1,6 @@
 package com.example.railwayqrapp.authentication
 
+import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import com.example.railwayqrapp.SystemColors
 import com.example.railwayqrapp.data.User
 import com.example.railwayqrapp.ui.theme.buttonBackgroundColor
 import com.example.railwayqrapp.ui.theme.fadedWhite
+import org.w3c.dom.Text
 
 @Composable
 fun SignUpScreen(
@@ -77,6 +80,9 @@ fun SignUpScreen(
             mutableStateOf(false)
         }
 
+        val errorToastState = remember{ mutableStateOf(false)}
+        val errorSaveUserState = remember{ mutableStateOf(false)}
+
         val signUpState = viewModel.signUpState.collectAsState()
         val saveUserState = viewModel.saveUserState.collectAsState()
 
@@ -98,7 +104,9 @@ fun SignUpScreen(
 
                 else -> {
                     progressBarState = false
-                    Toast.makeText(context, signUpState.value.toString(), Toast.LENGTH_LONG).show()
+                    LaunchedEffect(key1 = errorToastState.value){
+                        Toast.makeText(context,"Some error occurred!", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -121,7 +129,9 @@ fun SignUpScreen(
 
                 else -> {
                     progressBarState = false
-                    Toast.makeText(context, signUpState.value.toString(), Toast.LENGTH_LONG).show()
+                    LaunchedEffect(key1 = errorSaveUserState){
+                        Toast.makeText(context, "Some error occurred!", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -224,6 +234,8 @@ fun SignUpScreen(
                     && lastNameState.isNotEmpty()
             ) {
                 // Perform Sign Up
+                errorToastState.value = !errorToastState.value
+                errorSaveUserState.value = !errorSaveUserState.value
                 val email = emailState
                 val password = passwordState
                 viewModel.signUpUser(email, password)

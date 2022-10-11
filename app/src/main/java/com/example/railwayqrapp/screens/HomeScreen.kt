@@ -102,9 +102,10 @@ fun HomeScreen(
             },
             onLogOutClicked = {
                 // Log Out the user
+                logOutDialogState.value = false
                 authViewModel.logOut()
                 navigateClearFullBackStack(
-                    navController,
+                    navController = navController,
                     destination = Screens.SignInScreen.route
                 )
             }

@@ -22,6 +22,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,6 +80,8 @@ fun SignInScreen(
     var dialogBoxButtonState by remember {
         mutableStateOf(false)
     }
+    val errorToastState = remember{ mutableStateOf(false)}
+    val errorResetToastState = remember{ mutableStateOf(false)}
     dialogBoxButtonState = dialogTextState.isEmailValid()
 
     if (dialogBoxState) {
@@ -92,6 +95,7 @@ fun SignInScreen(
                 dialogBoxState = false
             },
             onSubmitClicked = {
+                errorResetToastState.value = !errorResetToastState.value
                 viewModel.sendPasswordResetMail(dialogTextState)
                 dialogBoxState = false
             }
@@ -119,7 +123,9 @@ fun SignInScreen(
 
             else -> {
                 progressBarState = false
-                Toast.makeText(context, signInState.value.toString(), Toast.LENGTH_LONG).show()
+                LaunchedEffect(key1 = errorToastState.value){
+                    Toast.makeText(context,"Some error occurred!", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -137,7 +143,9 @@ fun SignInScreen(
 
             else -> {
                 progressBarState = false
-                Toast.makeText(context, signInState.value.toString(), Toast.LENGTH_LONG).show()
+                LaunchedEffect(key1 = errorResetToastState){
+                    Toast.makeText(context, "Some error occurred!", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -200,6 +208,7 @@ fun SignInScreen(
                 // Perform Sign In
                 val email = emailTextState
                 val password = passwordTextState
+                errorToastState.value = !errorToastState.value
                 scope.launch {
                     viewModel.signInUser(email, password)
                 }
@@ -239,7 +248,10 @@ fun SignInScreen(
                         .clickable {
                             // Handle sign up
                             navController.navigate(Screens.SignUpScreen.route)
-                            Log.d("BackStackSignIn", "backstack -> ${navController.backQueue.map { it.destination.toString() }}")
+                            Log.d(
+                                "BackStackSignIn",
+                                "backstack -> ${navController.backQueue.map { it.destination.toString() }}"
+                            )
                         }
                         .alpha(.6f),
                     text = "New here? Sign up instead...",
