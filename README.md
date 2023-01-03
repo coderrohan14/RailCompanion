@@ -1,3 +1,3 @@
 # RailCompanion
 
-<img src="https://ibb.co/tmpfZ9f" width="300"/>
+<img src="https://ibb.co/tmpfZ9f" width="300">
